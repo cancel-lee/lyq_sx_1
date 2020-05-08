@@ -1,0 +1,56 @@
+<html>
+
+<head>
+	<script type="text/javascript" src="https://cdn.bootcss.com/vue/2.6.11/vue.min.js"></script>
+	<style type="text/css">
+		.list1 p {
+			font: normal 1.5em Arial, Helvetica, sans-serif;
+			size: 14pt;
+			line-height: 14pt;
+		}		
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<div class="list1">
+			<p v-for="(s, index) in exp" :key="index">{{s}}</p>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var vm = new Vue({
+			el: '#app',
+			data: {
+				exp: []
+			},
+			methods: {
+				r(min, max) {
+					return Math.floor(Math.random() * (max - min)) + min
+				},
+				loaddata() {
+					for (let i = 0; i < 10; i++) {
+						let a, b, c, y;
+						a = this.r(10, 99);
+						if (a > 50) {
+							b = this.r(10, a - 1);
+							c = this.r(10, 99 - a + b);
+							y = a - b + c;
+							console.log(a, b, c, y)
+							this.exp.push(`${a} - ${b} + ${c} = ${y}`);
+						} else {
+							b = this.r(10, 99 - a);
+							c = this.r(10, a + b);
+							y = a + b - c;
+							this.exp.push(`${a} + ${b} - ${c} = ${y}`);
+						}
+					}
+				}
+			},
+			mounted() {
+				this.loaddata();
+			}
+		});
+	</script>
+</body>
+
+</html>
