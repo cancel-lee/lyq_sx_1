@@ -136,14 +136,12 @@
 							b = this.r(10, a - 1);
 							c = this.r(10, 99 - a + b);
 							y = a - b + c;
-							// this.his.push({ exp: `${a} - ${b} + ${c} = ?`, y, r: 'empty' });
-							this.his.push({ exp: `${a} - ${b} + ${c} = ${y}`, y, r: 'empty' });
+							this.his.push({ exp: `${a} - ${b} + ${c} = ?`, y, r: 'empty' });
 						} else {
 							b = this.r(10, 99 - a);
 							c = this.r(10, a + b);
 							y = a + b - c;
-							// this.his.push({ exp: `${a} + ${b} - ${c} = ?`, y, r: 'empty' });
-							this.his.push({ exp: `${a} + ${b} - ${c} =  ${y}`, y, r: 'empty' });
+							this.his.push({ exp: `${a} + ${b} - ${c} = ?`, y, r: 'empty' });
 						}
 					}
 					this.pass = 0;
