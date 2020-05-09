@@ -1,33 +1,134 @@
 <html>
 
 <head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 	<script type="text/javascript" src="https://cdn.bootcss.com/vue/2.6.11/vue.min.js"></script>
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 	<style type="text/css">
-		.list1 p {
-			font: normal 1.5em Arial, Helvetica, sans-serif;
-			size: 14pt;
-			line-height: 14pt;
-		}		
+		html,
+		body {
+			font-size: 5vh;
+			margin: 0;
+			padding: 0;
+		}
+
+		.el-main {
+			height: 100vh;
+			background-color: rgb(255, 255, 255);
+			color: #444;
+		}
+
+		.ans p {
+			font-size: 15vh;
+			margin: 0 !important;
+		}
+
+		.btn {
+			margin-top: 15vh;
+			font-size: 5vh;
+			padding: 5vh 10vh !important;
+		}
+
+		.keyboard {
+			position: fixed;
+			bottom: 0px;
+			height: 45vh;
+			padding: 0;
+			margin: 0;
+			width: 100%;
+		}
+
+		.keyboard .el-col {
+			height: 11vh;
+		}
+
+		.keyboard .el-button {
+			font-size: 5vh;
+			height: 10vh;
+			width: 13vh;
+		}
+
+		.result {
+			padding-top: 5vh;
+		}
+
+		.result span i {
+			width: 6vw;
+			font-size: 6vw;
+			padding: 0.5vw !important;
+		}
+
+		.score {
+			padding-top: 20vh;
+			font-size: 9vh !important;
+		}
+
+		.text-gray {
+			color: gainsboro;
+		}
+
+		.text-green {
+			color: green;
+		}
+
+		.text-red {
+			color: red;
+		}
 	</style>
 </head>
 
 <body>
 	<div id="app">
-		<div class="list1">
-			<p v-for="(s, index) in exp" :key="index">{{s}}</p>
-		</div>
+		<el-container>
+			<el-main style="text-align: center;">
+				<div class="result" v-if="his.length !== 0">
+					<span v-for="(e,k) in his" :key="k">
+						<i v-if="e.r === 'empty'" class="el-icon-full-screen text-gray"></i>
+						<i v-if="e.r === 'true'" class="el-icon-circle-check text-green"></i>
+						<i v-if="e.r === 'false'" class="el-icon-circle-close text-red"></i>
+					</span>
+				</div>
+				<el-button type="primary" round class="btn" @click="init" v-if="his.length === 0">开始</el-button>
+				<div :style="level" v-if="finished" class="score">
+					成绩：{{score}}
+				</div>
+				<el-button type="primary" round class="btn" @click="init" v-if="finished">重新开始</el-button>
+				<div class="question" v-if="his.length !== 0 && !finished">
+					<p>{{current}}</p>
+				</div>
+				<div class="ans" v-if="his.length !== 0 && !finished">
+					<p>{{ans}}</p>
+				</div>
+				<div class="keyboard" v-if="his.length !== 0 && !finished">
+					<el-row>
+						<el-col class="key" :span="8" v-for="(k, index) in keys" :key="index">
+							<el-button type="primary" plain circle @click.stop="input(k)">{{k}}</el-button>
+					</el-row>
+				</div>
+			</el-main>
+		</el-container>
 	</div>
 	<script type="text/javascript">
 		var vm = new Vue({
 			el: '#app',
 			data: {
-				exp: []
+				his: [],
+				current: '',
+				ans: '',
+				pass: 0,
+				error: 0,
+				keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'],
+				iconClasses: ['icon-rate-face-1', 'icon-rate-face-2', 'icon-rate-face-3'],
+				index: -1,
+				finished: false
 			},
 			methods: {
 				r(min, max) {
 					return Math.floor(Math.random() * (max - min)) + min
 				},
-				loaddata() {
+				init() {
+					this.his = [];
 					for (let i = 0; i < 10; i++) {
 						let a, b, c, y;
 						a = this.r(10, 99);
@@ -35,19 +136,56 @@
 							b = this.r(10, a - 1);
 							c = this.r(10, 99 - a + b);
 							y = a - b + c;
-							console.log(a, b, c, y)
-							this.exp.push(`${a} - ${b} + ${c} = ${y}`);
+							// this.his.push({ exp: `${a} - ${b} + ${c} = ?`, y, r: 'empty' });
+							this.his.push({ exp: `${a} - ${b} + ${c} = ${y}`, y, r: 'empty' });
 						} else {
 							b = this.r(10, 99 - a);
 							c = this.r(10, a + b);
 							y = a + b - c;
-							this.exp.push(`${a} + ${b} - ${c} = ${y}`);
+							// this.his.push({ exp: `${a} + ${b} - ${c} = ?`, y, r: 'empty' });
+							this.his.push({ exp: `${a} + ${b} - ${c} =  ${y}`, y, r: 'empty' });
 						}
+					}
+					this.pass = 0;
+					this.error = 0;
+					this.index = 0;
+					this.finished = false;
+					this.current = this.his[this.index].exp;
+				},
+				input(k) {
+					if (k === 'C') {
+						this.ans = '';
+					} else if (k === 'OK') {
+						let exp = this.his[this.index];
+						exp.r = (exp.y == this.ans) ? 'true' : 'false';
+						this.index++;
+						if (this.index >= this.his.length) {
+							this.finished = true;
+						} else {
+							this.current = this.his[this.index].exp;
+							this.ans = ''
+						}
+					} else {
+						this.ans += k;
+					}
+				}
+			},
+			computed: {
+				score() {
+					return (this.his.filter(x => x.r == 'true').length / this.his.length * 100);
+				},
+				level() {
+					if (this.score === 100) {
+						return { color: 'green' };
+					} else if (this.score >= 80) {
+						return { color: 'blue' };
+					} else {
+						return { color: 'red' }
 					}
 				}
 			},
 			mounted() {
-				this.loaddata();
+				this.init();
 			}
 		});
 	</script>
